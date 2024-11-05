@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            display: grid;
+            place-items: center;
+            background-color: #ebebeb;
+        }
+
+        label {
+            margin: 20px;
+        }
+
+        input[type="text"] {
+            font-size: 24px;
+            padding: 8px;
+            border: 2px solid #7e7e7e;
+            border-radius: 4px;
+            width: 300px;
+        }
+
+        input[type="submit"] {
+            font-size: 24px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #7e7e7e;
+            color: white;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #555;
+        }
+
+        #messages {
+            background-color: #f6f6f6;
+            width: 400px;
+            height: 600px;
+            overflow-y: scroll;
+            overflow-x: hidden;
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid #7e7e7e;
+            margin-top: 20px;
+        }
+
+        #messages p {
+            margin: 5px 0;
+            padding: 8px;
+            border-radius: 10px;
+            word-wrap: break-word;
+        }
+
+        .message-left {
+            background-color: white;
+            align-self: flex-start;
+        }
+
+        .message-right {
+            background-color: #2d2d2d;
+            color: #f6f6f6;
+            align-self: flex-end;
+        }
+
+        .typing-indicator {
+            font-style: italic;
+            font-size: 14px;
+            color: #7e7e7e;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <label for="m">Message</label>
+    <input type="text" id="m" onkeyup="typing()" placeholder="Entrez votre message...">
+    <input type="submit" onclick="send()" value="Envoyer">
+    <div id="messages"></div> <!-- Container for displaying messages -->
+
+    <script>
+        var socket = io();
+        var name = prompt("Saisir votre nom"); // Prompt user for their name
+
+        // Listen for incoming messages and display them
+        socket.on("aaaaa", (data) => {
+            const messageElement = document.createElement("p");
+            messageElement.innerText = data; // Display the received message
+            document.getElementById("messages").appendChild(messageElement);
+        });
+
+        // Listen for typing notifications
+        socket.on("typingg", (username) => {
+            // Remove any existing typing indicator
+            const existingTypingIndicator = document.querySelector(".typing-indicator");
+            if (existingTypingIndicator) {
+                existingTypingIndicator.remove();
+            }
+
+            const typingElement = document.createElement("p");
+            typingElement.innerText = `L'utilisateur ${username} est en train d'écrire...`;
+            typingElement.classList.add("typing-indicator"); // Add class for styling
+            document.getElementById("messages").appendChild(typingElement);
+
+            // Remove typing indicator after a few seconds
+            setTimeout(() => {
+                typingElement.remove();
+            }, 3000);
+        });
+
+        // Function to send messages
+        function send() {
+            const message = document.getElementById("m").value; // Get message input
+            if (message) {
+                console.log('Votre message: ' + message);
+                socket.emit("aaaaa", `${name}: ${message}`); // Send message with username
+                document.getElementById("m").value = ""; // Clear the input field
+            }
+        }
+
+        // Function to notify others that the user is typing
+        function typing() {
+            socket.emit("typingg", name); // Notify others that this user is typing
+        }
+    </script>
+</body>
+</html>
